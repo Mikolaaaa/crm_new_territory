@@ -1,0 +1,195 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>База данных</h1>
+{% load widget_tweaks %}
+
+<form class="form-horizontal" action="" method="get">
+    
+    <div class="row">
+    <div class="col-lg-6" style="padding-left: 25px;">
+    <div class="form-group">
+        <label for="category" class="control-label">Категория: </label>
+        <div name="category">
+            {% render_field data_filter.form.category class="form-control" %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="specialist" class="control-label">Специалист: </label>
+        <div name="specialist">
+            {% render_field data_filter.form.specialist class="form-control" %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="choice_answer" class="control-label">Ответ: </label>
+        <div name="choice_answer">
+            {% render_field data_filter.form.choice_answer class="form-control" %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="score_answer" class="control-label">Личная оценка: </label>
+        <div name="score_answer">
+            {% render_field data_filter.form.score_answer class="form-control" %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="like_and_dislike" class="control-label">Лайки и дизлайки: </label>
+        <div name="like_and_dislike">
+            {% render_field data_filter.form.like_and_dislike class="form-control" %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="question_text" class="control-label">Поиск вопроса по тексту: </label>
+        <div name="question_text">
+            {% render_field data_filter.form.question_text class="form-control" %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="datetime_question" class="control-label">Период вопросов: </label>
+        <div name="datetime_question">
+            <div class="col-lg-4">
+            {% render_field data_filter.form.datetime_question_gte class="form-control" %}
+        </div>
+            <div class="col-lg-4">
+            {% render_field data_filter.form.datetime_question_lte class="form-control" %}
+        </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-lg-2">
+        <input type="submit" value="Применить" class="btn btn-primary">
+        </div>
+    </div>
+</div>
+</div>
+</form>
+<hr>
+{% if data_list %}
+
+<div class="container-fluid">
+    {% for object in data_list %}
+    <form class="form-horizontal" action="/crm/data-base/{{object.id}}" method="post">
+        {% csrf_token %}
+    {% if object.it_finaly %}
+        <div class="row bg-success">
+    {% elif object.retarget_category %}
+        <div class="row bg-warning">
+    {% elif object.datetime and not object.answer_text %}
+        <div class="row bg-danger">
+    {% else %}
+        <div class="row bg-info">   
+    {% endif %}
+    {% if object.retarget_category %}
+        <div class="col-lg-9"><p class="lead">{{ object.retarget_category.name }} >>> {{ object.category.name }}</p></div>
+    {% else %}
+        <div class="col-lg-6"><p class="lead">{{ object.category.name }} {% if object.datetime and not object.answer_text %}(СПАМ){% endif %}</p></div> 
+    {% endif %}
+    </div>
+    {% if object.first_question %}
+    <div class="row">
+        <h4>Начальный вопрос ({{ object.first_question.datetime_question|date:"d.m.Y / H:i" }}):</h4>
+    </div>
+    <div class="row">
+        <div class="col-lg-10">{{ object.first_question.question }}</div> 
+    </div>
+    {% endif %}
+    <div class="row">
+        <h4>Вопрос ({{ object.datetime_question|date:"d.m.Y / H:i" }}):</h4>
+    </div>
+    <div class="row">
+        <div class="col-lg-10">{{ object.question }}</div> 
+    </div>
+
+    {% if object.answer_text and not object.specialist == user and not user.is_staff %}
+    <div class="row"> 
+        <h4>Ответ ({{ object.datetime|date:"d.m.Y / H:i" }}):</h4>
+    </div>
+    <div class="row">
+        <div class="col-lg-10">{{ object.answer_text }}</div>
+    </div>
+    {% endif %}
+
+    {% if user.is_staff or object.specialist == user %}
+    <div class="row"> 
+        <h4>Ответ ({{ object.datetime|date:"d.m.Y / H:i" }}):</h4>
+    </div>
+    <div class="row">
+        {% if object.answer_text %}
+        <div class="col-lg-10"><textarea class="form-control" rows="3" name="answer_new_hand">{{ object.answer_text }}</textarea></div>
+        {% else %}
+        <div class="col-lg-10"><textarea class="form-control" rows="3" name="answer_new_hand"></textarea></div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if user.is_staff %}
+        {% if not object.datetime and question_not_answer and not object.answer_text or object.it_interim and question_not_answer %}
+        <div class="row"> 
+            <h4>Выбрать ответ из вопросов:</h4>
+        </div>
+        <div class="row">
+            <select class="form-control" name="answer_new">
+                <option value=''>---</option>
+                {% for c in question_not_answer %} 
+                    {% if not c.id == object.id %}
+                        <option value="{{ c.id }}">{{ c.question }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {% if object.specialist %}
+    <div class="row">
+    <h4>Специалист: {{ object.specialist.last_name }} {{ object.specialist.first_name }}</h4>
+    </div>
+    {% endif %}
+    <div class="row">
+        <h4>👍 {{ object.like }} 👎 {{ object.dislike }}</h4>
+    </div>
+    {% if object.score_answer == 1 %}
+    <div class="row">     
+        <h4>Личная оценка ответа: <text class="text-success">Полностью удовлетворен 😊</text></h4>
+    </div>
+    {% elif object.score_answer == 2 %}
+    <div class="row">     
+        <h4>Личная оценка ответа: <text class="text-warning">Частично удовлетворен 😐</text></h4>
+    </div>
+    {% elif object.score_answer == 3 %}
+    <div class="row">     
+        <h4>Личная оценка ответа: <text class="text-danger">Не удовлетворен ☹️</text></h4>
+    </div>
+    {% endif %}
+    {% if user.is_staff or object.specialist == user %}
+    <div class="row"> 
+        <div class="col-lg-10">
+            {% if object.answer_text %}
+                <button type="submit" name="action" value="it_edit_answer" class="btn btn-success">Изменить только текст</button>
+            {% endif %}
+            {% if not object.it_finaly and object.answer_text or not object.datetime and question_not_answer and not object.answer_text or object.it_interim and question_not_answer %}
+                <button type="submit" name="action" value="it_finaly" class="btn btn-primary">Сделать ответ финальным</button>
+            {% endif %}
+            {% if object.it_finaly and object.answer_text or not object.datetime and question_not_answer and not object.answer_text or object.it_interim and question_not_answer %}
+                <button type="submit" name="action" value="it_interim" class="btn btn-warning">Сделать ответ промежуточным</button>
+            {% endif %}
+            {% if not object.datetime and not object.answer_text %}
+                <button type="submit" name="action" value="it_spam" class="btn btn-danger">Отправить в спам</button>
+            {% endif %}
+            {% if object.datetime and not object.answer_text %}
+                <button type="submit" name="action" value="it_question" class="btn btn-danger">Вернуть из спама</button>
+            {% endif %}
+            <input type="hidden" name="url_filters" value="{{request.get_full_path}}" />
+        </div>
+    </div>
+    {% endif %}
+    </form>
+    <hr>
+  {% endfor %}
+</div>
+
+    {% else %}
+      <p>Нет данных.</p>
+{% endif %}
+
+{% endblock %}

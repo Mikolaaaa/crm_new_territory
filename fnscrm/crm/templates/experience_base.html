@@ -1,0 +1,57 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>База знаний</h1>
+{% load widget_tweaks %}
+
+<form class="form-horizontal" action="" method="get">
+    
+    <div class="form-group">
+        <label for="id_category" class="col-lg-2 control-label col-lg-pull-1">Категория: </label>
+        <div name="category" class="col-lg-4 col-lg-pull-1">
+            {% render_field data_filter.form.category class="form-control" %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="specialist" class="col-lg-2 control-label col-lg-pull-1">Специалист: </label>
+        <div class="col-lg-4 col-lg-pull-1">
+            {% render_field data_filter.form.specialist class="form-control" %}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-lg-offset-1 col-lg-2">
+        <input type="submit" value="Применить" class="btn btn-primary">
+        </div>
+    </div>
+</form>
+<hr>
+{% if data_list %}
+
+<div class="container-fluid">
+    {% for object in data_list %}
+    <div class="row bg-info">
+        <div class="col-lg-3"><p class="lead">{{ object.category.name }}</p></div> 
+        <div class="col-lg-3"><p class="lead">{{ object.specialist.last_name }} {{ object.specialist.first_name }}</p></div>
+        <div class="col-lg-3"><p class="lead">{{ object.datetime|date:"d.m.Y / h:i" }}</p></div>
+    </div>
+    <div class="row">
+        <h4>Вопрос:</h4>
+    </div>
+    <div class="row">
+        <div class="col-lg-10">{{ object.question }}</div> 
+    </div>
+    <div class="row">
+        <h4>Ответ:</h4>
+    </div>
+    <div class="row">
+        <div class="col-lg-10">{{ object.answer }}</div>
+    </div>
+    <hr>
+  {% endfor %}
+</div>
+
+    {% else %}
+      <p>Нет данных.</p>
+{% endif %}
+
+{% endblock %}

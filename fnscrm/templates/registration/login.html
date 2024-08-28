@@ -1,0 +1,39 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+{% if form.errors %}
+  <p>Ваше имя пользователя и пароль не совпали. Пожалуйста, попробуйте снова.</p>
+{% endif %}
+
+{% if next %}
+  {% if user.is_authenticated %}
+    <p>У вашей учетной записи нет доступа к этой странице. Чтобы продолжить,
+      пожалуйста, войдите в систему с учетной записью, у которой есть доступ.</p>
+  {% else %}
+    <p>Пожалуйста, войдите в систему, чтобы просмотреть эту страницу.</p>
+  {% endif %}
+{% endif %}
+
+
+<form class="form-horizontal" method="post" action="{% url 'login' %}">
+{% csrf_token %}
+<div class="form-group">
+  <label for="id_name" class="col-lg-2 control-label col-lg-pull-1">Логин: </label>
+  <div name="id_name" class="col-lg-4 col-lg-pull-1">
+    {{ form.username }}
+  </div>
+</div>
+<div class="form-group">
+  <label for="id_password" class="col-lg-2 control-label col-lg-pull-1">Пароль: </label>
+  <div name="id_password" type="password" class="col-lg-4 col-lg-pull-1">
+    {{ form.password }}
+  </div>
+</div>
+
+
+<input type="submit" value="login" class="btn btn-primary" />
+<input type="hidden" name="next" value="{{ next }}" />
+</form>
+
+{% endblock %}

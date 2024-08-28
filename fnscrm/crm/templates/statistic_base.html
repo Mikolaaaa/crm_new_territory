@@ -1,0 +1,125 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Статистика</h1>
+<div class="container-fluid">
+    <div class="row">
+        <h3>Количество пользователей <b style="color:green">{{ object_list.all_members }} ({{ object_list.count_members }})</b> на <b style="color:green">{{ object_list.date_update|date:"d.m.Y / H:i" }}</b></h3>
+        <h3>Количество вопросов <b style="color:green">{{ object_list.dict_agr.count_questions }}</b> / Отвечено <b style="color:green">{{ object_list.dict_agr.percent_questions_finaly }}%</b></h3>
+        <h3>Количество ответов <b style="color:green">{{ object_list.dict_agr.count_questions_answer }}</b></h3>
+        <h3>Количество вопросов без ответа <b style="color:green">{{ object_list.dict_agr.count_questions_not_answer }}</b></h3>
+        <!-- <h4 style="padding-left: 30px;">Из них финальных ответов <b style="color:green">{{ object_list.dict_agr.count_questions_finaly }}</b></h4>
+        <h4 style="padding-left: 30px;">Из них промежуточных ответов <b style="color:green">{{ object_list.dict_agr.count_questions_answer_no_last }}</b></h4>
+        <h4 style="padding-left: 30px;">Из них с просрочной более 2-х дней <b style="color:green">{{ object_list.dict_agr.count_questions_data }}</b></h4> -->
+        <!-- <h3>Процент отвеченных <b style="color:green">{{ object_list.dict_agr.percent_questions_finaly }}</b></h3> -->
+    </div>
+    <div class="row">  
+        <h3><a href="download-statistic">Скачать статистику</a></h3>
+        <h3>Категории вопросов</h3>
+        <table  class="table table-hover">
+        <thead>
+            <tr>
+                <th>Категория</th>
+                <th>Всего вопросов</th>
+                <th>Всего ответов</th>
+                <th>Из них финальных</th>
+                <th>Промежуточные</br>ответы</th>
+                <th>Без ответа</th>
+                <th>Просрочка</br>более 2-х дней</th>
+                <th>Несогласованная</br>переадресация</th>
+                <th>👍</th>
+                <th>👎</th>
+                <th>😊</th>
+                <th>😐</th>
+                <th>☹️</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list.data_category %}
+        <tr>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&it_test=0" >{{ object.category__name }}</a></td>
+            <td>{{ object.count_questions }}</td>
+            <td>{{ object.count_questions_answer }}</td>
+            <td>{{ object.count_questions_finaly }}</td>
+            <td>{{ object.count_questions_answer_no_last }}</td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&it_test=0&choice_answer=2" >{{ object.count_questions_not_answer }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&it_test=0&choice_answer=3" >{{ object.count_questions_data }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&it_test=0&choice_answer=5" >{{ object.count_questions_retarget }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&like_and_dislike=1&it_test=0" >{{ object.sum_like }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&like_and_dislike=3&it_test=0" >{{ object.sum_dislike }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&score_answer=1&it_test=0" >{{ object.count_score_1 }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&score_answer=2&it_test=0" >{{ object.count_score_2 }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&score_answer=3&it_test=0" >{{ object.count_score_3 }}</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>           
+                <td><b>Итоги</b></td>
+                <td><b>{{ object_list.dict_agr.count_questions }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_questions_answer }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_questions_finaly }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_questions_answer_no_last }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_questions_not_answer }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_questions_data }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_questions_retarget }}</b></td>
+                <td><b>{{ object_list.dict_agr.sum_like }}</b></td>
+                <td><b>{{ object_list.dict_agr.sum_dislike }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_score_1 }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_score_2 }}</b></td>
+                <td><b>{{ object_list.dict_agr.count_score_3 }}</b></td>                   
+            </tr>
+        </tfoot>
+        </table>
+    </div>
+    <div class="row">   
+        <h3>Наиболее часто отвечающие специалисты</h3>
+        <table  class="table table-hover">
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Специалист</th>
+                <th>Всего ответов</th>
+                <th>Из них финальных</th>
+                <th>Промежуточные</br>ответы</th>
+                <th>👍</th>
+                <th>👎</th>
+                <th>😊</th>
+                <th>😐</th>
+                <th>☹️</th>
+            </tr>   
+        </thead>
+        <tbody>
+        {% for object in object_list.data_specialist %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td><a href="{% url 'log_messages' %}?specialist={{ object.specialist }}&it_test=0" >{{ object.specialist__last_name }} {{ object.specialist__first_name }}</a></td>
+            <td>{{ object.count_questions }}</td>
+            <td>{{ object.count_questions_finaly }}</td>
+            <td>{{ object.count_questions_answer_no_last }}</td>
+            <td><a href="{% url 'log_messages' %}?specialist={{ object.specialist }}&like_and_dislike=1&it_test=0" >{{ object.sum_like }}</a></td>
+            <td><a href="{% url 'log_messages' %}?specialist={{ object.specialist }}&like_and_dislike=3&it_test=0" >{{ object.sum_dislike }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&score_answer=1&it_test=0" >{{ object.count_score_1 }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&score_answer=2&it_test=0" >{{ object.count_score_2 }}</a></td>
+            <td><a href="{% url 'log_messages' %}?category={{ object.category }}&score_answer=3&it_test=0" >{{ object.count_score_3 }}</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><b>Итоги</td>
+                <td></td>
+                <td><b>{{ object_list.dict_arg_spec.count_questions }}</b></td>
+                <td><b>{{ object_list.dict_arg_spec.count_questions_finaly }}</b></td>
+                <td><b>{{ object_list.dict_arg_spec.count_questions_answer_no_last }}</b></td>
+                <td><b>{{ object_list.dict_arg_spec.sum_like }}</b></td>
+                <td><b>{{ object_list.dict_arg_spec.sum_dislike }}</b></td>
+                <td><b>{{ object_list.dict_arg_spec.count_score_1 }}</b></td>
+                <td><b>{{ object_list.dict_arg_spec.count_score_2 }}</b></td>
+                <td><b>{{ object_list.dict_arg_spec.count_score_3 }}</b></td>   
+            </tr>
+        </tfoot>
+        </table>
+    </div>
+</div>
+{% endblock %}

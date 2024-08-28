@@ -1,0 +1,29 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Заявка на удаление модератора</h1>
+{% load widget_tweaks %}
+
+<div class="container-fluid">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-6" style="padding-left: 25px;">
+                <div class="form-group">
+                    <label for="user_edit_delete" class="control-label">Пользователь: </label>
+                    <div name="user_edit_delete">
+                        {% render_field form.user_edit_delete class="form-control" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="padding-bottom: 50px;">
+            <div class="col-lg-2">
+                <input type="submit" value="Создать заявку" class="btn btn-primary">
+            </div>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends "base_generic.html" %}
+
+
+{% block content %}
+<h1>Рабочий стол</h1>
+{% load widget_tweaks %}
+{% load static %}
+<script src="{% static 'my.js' %}"></script>
+{% if data_list %}
+
+<div class="container-fluid">
+    {% if user.is_staff %}
+    <form class="form-horizontal" action="" method="get">
+        <div class="form-group">
+            <label for="category" class="control-label">Отбор по категории: </label>
+            <div class="row">
+                <div class="col-lg-9">
+                    <div name="category">
+                        {% render_field data_filter.form.category class="form-control" %}
+                    </div>
+                </div>
+                <div class="col-lg-1">
+                    <div class="form-group">
+                        <input type="submit" value="Применить" class="btn btn-primary">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+
+        {% for object in data_list %}
+    <form class="form-horizontal" action="/crm/test/{{object.id}}" method="post">
+        {% csrf_token %}
+        {% if object.retarget_category %}
+        <div class="row bg-warning">
+        {% else %}
+        <div class="row bg-info">
+        {% endif %}
+        <div class="col-lg-4">
+                {% if object.retarget_category %}
+                <label class="control-label">Изменение категории</label>
+                {% else %}
+                <label class="control-label">Вопрос</label>
+                {% endif %}
+            
+                {% if not object.it_current_category %}
+                    <select class="form-control" name="category_new" id="{{ object.category.id }}" onchange="answerRetarget(value, id, document.getElementById('answer_message_{{ object.id }}'), document.getElementById('button_edit_category_{{ object.id }}'), document.getElementById('text_edit_category_{{ object.id }}'), document.getElementById('button_answer_{{ object.id }}'))">
+                {% else%}
+                <select class="form-control" name="category_new" id="{{ object.category.id }}" onchange="answerRetarget(value, id, document.getElementById('answer_message_{{ object.id }}'), document.getElementById('button_edit_category_{{ object.id }}'), document.getElementById('text_edit_category_{{ object.id }}'), document.getElementById('button_answer_{{ object.id }}'))", disabled>
+                {% endif %}
+                {% for c in data_category %} 
+                    {% if c.0 == object.category.id %}
+                        <option value="{{ c.0 }}" selected>{{ c.1 }}</option> 
+                    {% else %}
+                        {% if not object.retarget_category %}
+                            <option value="{{ c.0 }}">{{ c.1 }}</option>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                </select>
+            </div>
+                {% if object.retarget_category %}
+                    {% if not object.it_current_category %}
+                        <div class="col-lg-3">
+                            <button type="submit" name="action" value="it_retarget_category" class="btn btn-success">Согласовать</button>
+                            <button type="submit" name="action" value="it_retarget_category_refusal" class="btn btn-danger">Отказать</button>
+                        </div>
+                    {% endif %}
+                {% else %}
+                <div class="col-lg-3">
+                    <button style="display: none;" id="button_edit_category_{{ object.id }}" type="submit" name="action" value="it_retarget_category_agreed" class="btn btn-primary">Изменить категорию</button>
+                    <em id="text_edit_category_{{ object.id }}">Для переадресации вопроса, выберите другую тему</em>
+                </div>
+                {% endif %}
+        </div>
+        <div class="row">
+            <h4>Вопрос ({{ object.datetime_question|date:"d.m.Y / H:i" }}):</h4>
+        </div>
+        <div class="row">
+            <div class="col-lg-10">{{ object.question }}</div> 
+        </div>
+        {% if not object.it_current_category %}
+            <div class="row">
+                <h4>Ответ:</h4>
+            </div>
+            <div class="row">
+                <div class="col-lg-10">    
+                    {% if object.retarget_category  %}      
+                    <textarea name="answer" class="form-control" rows="3" id="answer_message_{{ object.id }}" placeholder="При отказе напишите комментарий для автора темы" required></textarea>
+                    {% else %}
+                    <textarea name="answer" class="form-control" rows="3" id="answer_message_{{ object.id }}"></textarea>
+                    {% endif %}
+                </div>
+            </div>
+            {% if object.comment_retarget_category %}
+            <div class="row">
+                <h4>Комментарий:</h4>
+            </div>
+            <div class="row">
+                <div class="col-lg-10">          
+                    <textarea name="comment_retarget_category" class="form-control" rows="3" id="comment_retarget_category"readonly>{{ object.comment_retarget_category }}</textarea>
+                </div>
+            </div>
+            {% endif %}
+            {% if not object.retarget_category %}
+            <div id="button_answer_{{ object.id }}" class="row" style="padding-top:15px;">
+                <div class="col-lg-10">
+                    <button type="submit" name="action" value="it_answer" class="btn btn-primary">Финальный</button>
+                    <button type="submit" name="action" value="it_answer_inner" class="btn btn-warning">Промежуточный</button>
+                    <button type="submit" name="action" value="it_spam" class="btn btn-danger pull-right">Спам</button>
+                </div>      
+            </div>
+            {% endif %}
+            <input type="hidden" name="url_filters" value="{{request.get_full_path}}" />
+            </form>
+            {% if object.message_reply %}
+            <div class="row">
+                <div class="col-lg-10">
+            <details>
+            <summary>
+                <u><h4>Предыдущие сообщения:</h4></u>
+            </summary>
+            {% for message in object.message_reply %}
+            <hr>
+            <div class="row">
+                <div class="col-lg-10"><h4>Вопрос ({{ message.datetime_question|date:"d.m.Y / H:i" }}):</h4></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10">{{ message.question }}</div> 
+            </div>
+            <div class="row">
+                <div class="col-lg-10"><h4>Ответ ({{ message.datetime|date:"d.m.Y / H:i" }}):</h4></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10">{{ message.answer_text }}</div> 
+            </div>
+            {% endfor %}
+            <hr>
+        </details>
+        </div>
+        </div>
+        {% endif %}
+        {% if object.list_of_hints %}
+        <div class="row">
+            <div class="col-lg-10">
+        <details>
+        <summary>
+            <u><h4>Похожие ответы из базы:</h4></u>
+        </summary>
+        {% for message in object.list_of_hints %}
+        <hr>
+        <div class="row">
+            <h4>Вопрос:</h4>
+        </div>
+        <div class="row">
+            <div class="col-lg-10">{{ message.question }}</div> 
+        </div>
+        <form>
+            <div class="row">
+                <h4>Количество ответов: {{ message.count_questions }}</h4>
+                <h4>Последняя дата ответа: {{ message.max_datetime_answer|date:"d.m.Y / H:i" }}</h4>
+            </div>
+        <div class="row">
+            <div class="col-lg-10">
+                <textarea class="form-control" rows="3" class="col-lg-10" id="answer_text_{{ object.id }}_{{ forloop.counter0 }}" readonly>{{ message.answer_text }}</textarea>
+            </div> 
+        </div>
+        <div class="row" style="padding-top:15px;">
+            <div class="col-lg-10">
+                <div class="btn btn-success" id="select_answer_{{ object.id }}_{{ forloop.counter0 }}" onclick="myFunction(document.getElementById('answer_text_{{ object.id }}_{{ forloop.counter0 }}'), document.getElementById('answer_message_{{ object.id }}'))">Выбрать</div>
+            </div>
+        </div>
+        </form>
+        {% endfor %}
+        </details>
+        </div>
+        </div>
+        {% endif %}
+        {% if object.list_retarget_category %}
+        <div class="row">
+            <div class="col-lg-10">
+        <details open>
+        <summary>
+            <u><h4>Возможно вопрос из другой темы:</h4></u>
+        </summary>
+        {% for category in object.list_retarget_category %}
+        <hr>
+        <div class="row">
+            <div class="col-lg-10">
+                <p>{{ category.name }}</p>
+            </div> 
+        </div>
+        {% endfor %}
+        </details>
+        </div>
+        </div>
+        {% endif %}
+    {% endif %}
+        <hr>
+    {% endfor %}
+    </div>
+
+    {% else %}
+      <p>Нет данных.</p>
+{% endif %}
+
+{% endblock %}

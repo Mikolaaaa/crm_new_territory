@@ -1,0 +1,90 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Заявки на добавление модераторов</h1>
+{% load widget_tweaks %}
+
+<h4><a href="moders-add">Добавление модератора</a></h4>
+<h4><a href="moders-edit-request">Изменение модератора</a></h4>
+<h4><a href="moders-delete-request">Удаление модератора</a></h4>
+
+{% if data_list %}
+
+<div class="container-fluid">   
+    <div class="row">
+        <table  class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID заявки</th>
+                    <th>Дата заявки</th>
+                    <th>Тип заявки</th>
+                    <th>Модератор</th>
+                    <th>Автор</th>
+                    <th>Статус</th>
+                    <th>Комментарий</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in data_list %}
+                {% if object.datatime_create_moder or object.it_rejection or not user.is_staff %}
+                    <tr>
+                {% else %}
+                    {% if object.type_action_request == 1 %}
+                        <tr onclick="document.location = 'moders-edit-action/{{ object.id }}';">
+                    {% elif object.type_action_request == 2 %}
+                        <tr onclick="document.location = 'moders-delete-action/{{ object.id }}';">
+                    {% else %}
+                        <tr onclick="document.location = 'moders-create/{{ object.id }}';">
+                    {% endif %}
+                {% endif %}
+                    <td>{{ object.id }}</td>
+                    <td>{{ object.datatime_request|date:"d.m.Y / H:i" }}</td>
+                    <td>{% if object.type_action_request == 0 %}
+                        Создать
+                        {% elif object.type_action_request == 1 %}
+                        Изменить
+                        {% elif object.type_action_request == 2 %}
+                        Удалить
+                        {% endif %}
+                    </td>
+                    <td>{% if object.user_edit_delete.last_name %} 
+                        {{ object.user_edit_delete.last_name }} 
+                        {% else %}
+                        {{ object }}
+                        {% endif %}</td>
+                    <td>{{ object.author }}</td>
+                    {% if object.datatime_create_moder %}
+                        <td class="text-success"><b>Заявка выполнена</b></td>
+                    {% elif object.it_rejection %}
+                        <td class="text-danger"><b>Отказ</b></td>
+                    {% else %}
+                        <td class="text-primary"><b>На рассмотрении</b></td>
+                    {% endif %}
+                    <td>{{ object.comment }}</td>
+                    <td>
+                        {% if object.datatime_create_moder or object.it_rejection %}
+                        <!-- То ни чего не делаем, просто круглые скобки нельзя, так что вот такое решение -->
+                        {% else %}
+                            {% if  not user == object.author %}
+                            <!-- То ни чего не делаем, просто круглые скобки нельзя, так что вот такое решение -->
+                            {% else %}
+                            <form method="post" action="/crm/moders-delete/{{object.id}}">
+                            {% csrf_token %}
+                                <input type="submit" value="Удалить" class="btn btn-danger">
+                            </form>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+    <p>Нет данных.</p>
+{% endif %}
+
+{% endblock %}

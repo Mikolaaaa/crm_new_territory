@@ -1,0 +1,32 @@
+{% extends "base_generic.html" %}
+
+
+{% block content %}
+<h1>Профиль</h1>
+
+{% load static %}
+
+<div class="container-fluid">
+    <form class="form-horizontal" action="/crm/edit-user/{{form.id}}" method="post">
+        {% csrf_token %}
+        <div class="row">
+        <div class="col-lg-6" style="padding-left: 25px;">
+        <div class="form-group">
+            <label for="last_name" class="control-label">Имя пользователя в CRM: </label>
+            <input type="text" id="last_name" name="last_name" class="form-control" value="{{form.last_name}}"> 
+        </div>
+        <div class="form-group">
+            <label for="username" class="control-label">Username в telegram: </label>
+            <input type="text" class="form-control" id="username" name="username" value="{{form.username}}">  
+        </div>
+        <div class="form-group">
+            <div class="col-lg-2">
+            <input type="submit" value="Сохранить" class="btn btn-primary">
+            </div>
+        </div>
+        </div>
+        </div>
+    </form>
+</div>
+        
+{% endblock %}

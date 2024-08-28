@@ -1,0 +1,65 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Статистика расшифровка</h1>
+<div class="container-fluid">
+    <div class="row">   
+        <table  class="table">
+        <thead>
+            <tr>
+                <th>Категория</th>
+                <th>Специалист</th>
+                <th>Оценка</th>                 
+            </tr>
+            <tr>
+                <th>Дата/время нач. вопроса</th>
+                <th>Начальный вопрос</th>       
+                <th>👍</th>                    
+            </tr>
+            <tr>
+                <th>Дата/время вопроса</th>
+                <th>Вопрос</th>
+                <th>👎</th>
+            </tr>
+            <tr>
+                <th>Дата/время ответа</th>
+                <th>Ответ</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list.data %}
+        <tr>
+            <td>{{ object.category.name }}</td>
+            <td>{{ object.specialist|default_if_none:"---" }}</td>
+            {% if object.score_answer == 1 %}
+            <td>😊</td>
+            {% elif object.score_answer == 2 %}
+            <td>😐</td>
+            {% elif object.score_answer == 3 %}
+            <td>☹️</td>
+            {% else %}
+            <td>---</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>{{ object.first_question.datetime|default_if_none:"---" }}</td>
+            <td>{{ object.first_question.name|default_if_none:"---" }}</td>
+            <td>{{ object.like }}</td>
+        </tr>
+        <tr>
+            <td>{{ object.datetime }}</td>
+            <td>{{ object.question }}</td>
+            <td>{{ object.dislike }}</td>
+        </tr>
+        <tr>
+            <td>{{ object.datetime_answer }}</td>
+            <td>{{ object.answer_text }}</td>
+            <td></td> 
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

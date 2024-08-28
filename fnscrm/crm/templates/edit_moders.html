@@ -1,0 +1,102 @@
+{% extends "base_generic.html" %}
+
+
+{% block content %}
+<h1>Заявка на добавление модератора</h1>
+{% load widget_tweaks %}
+{% load widget_tweaks %}
+{% load static %}
+<script src="{% static 'my.js' %}"></script>
+
+<div class="container-fluid">
+    <form method="post" action="/crm/moders-edit-request-create">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-6" style="padding-left: 25px;">
+                <div class="form-group">
+                    <label for="user_edit_delete" class="control-label">Пользователь: </label>
+                    <div name="user_edit_delete">
+
+                        <select class="form-control" name="user_edit_delete" onchange="choiseUserEdit(document.getElementById('button_update_data'), value)">
+                        {% if not form.target_user %}
+                            <option value="" selected>---</option>
+                        {% endif %}
+                        {% for c in form.user_edit_delete %}
+                            {% if c.id == form.target_user.id %}
+                                <option value="{{ c.id }}" selected>{{ c.last_name }}</option>
+                            {% else %}
+                                <option value="{{ c.id }}">{{ c.last_name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="padding-bottom: 50px;">
+                    <div class="col-lg-2">
+                        {% if not form.target_user %}
+                            <a id="button_update_data" href="" class="btn btn-primary">Обновить данные пользователя</a>
+                        {% else %}
+                            <a id="button_update_data" href="/crm/moders-edit-request/{{form.target_user.id}}" class="btn btn-primary">Обновить данные пользователя</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if form.target_user %}
+                <div class="form-group">
+                    <label for="name" class="control-label">Фамилия и инициалы: </label>
+                    <div name="name">
+                        <input name="name" value="{{form.name}}" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="login_tg" class="control-label">Логин в ТГ: </label>
+                    <div name="login_tg">
+                        <input name="login_tg" value="{{form.login_tg}}" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="department" class="control-label">Подразделение: </label>
+                    <div name="department">
+                        <select class="form-control" name="department">
+                            {% if not form.department %}
+                                <option value="" selected>---</option>
+                            {% else %}
+                                <option value="">---</option>
+                            {% endif %}
+                            {% for c in form.departments %}
+                            <option value="{{ c.id }}"
+                                {% if c.id == form.department.id %}
+                                    selected
+                                {% endif %}>{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="categories" class="control-label">Категории: </label>
+                    <div name="categories">
+                        <select class="form-control" name="categories" size="25" multiple>
+                            {% for c in form.all_categories %}
+                            <option value="{{ c.id }}"
+                                {% if c.id in form.categories %}
+                                    selected
+                                {% endif %}>{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <i>Для подключения нескольких категорий выбирайте с нажатой клавишей ctrl</i>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% if form.target_user %}
+        <div class="form-group" style="padding-bottom: 50px;">
+            <div class="col-lg-2">
+                <input type="submit" value="Создать заявку" class="btn btn-primary">
+            </div>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+
+{% endblock %}

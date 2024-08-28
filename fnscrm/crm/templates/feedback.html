@@ -1,0 +1,103 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Обратная связь</h1>
+{% load widget_tweaks %}
+
+<h4><a href="feedback-add">Оставить обратную связь</a></h4>
+
+{% if data_list %}
+
+<div class="container-fluid">  
+    
+    <form class="form-horizontal" action="" method="get">
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="form-group">
+                    <label for="status" class="control-label">Статус: </label>
+                    <div name="status">
+                        {% render_field data_filter.form.status class="form-control" %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div name="type_feedback">
+                        {% render_field data_filter.form.type_feedback class="form-control" %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-1">
+                        <input type="submit" value="Применить" class="btn btn-primary">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    
+    <div class="row">
+        <table  class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Дата</th>
+                    <th>Автор</th>
+                    <th>Статус</th>
+                    <th>Тип</th>
+                    <th>👍</th>
+                    <th>👎</th>
+                    <th>Обратная связь</th>
+                    <th>Комментарий</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in data_list %}
+                {% if not user.is_staff %}
+                    <tr>
+                {% else %}
+                    <tr onclick="document.location = 'feedback-update/{{ object.id }}';">
+                {% endif %}
+                    <td>{{ object.id }}</td>
+                    <td>{{ object.datatime_feedback|date:"d.m.Y / H:i" }}</td>
+                    <td>{{ object.author }}</td>
+                    {% if object.status == 1 or object.status == 2 %}
+                        <td class="text-primary"><b>{{ object.get_status_display }}</b></td>
+                    {% elif object.status == 3 %}
+                        <td class="text-warning"><b>{{ object.get_status_display }}</b></td>
+                    {% elif object.status == 4 %}
+                        <td class="text-success"><b>{{ object.get_status_display }}</b></td>
+                    {% elif object.status == 5 %}
+                        <td class="text-danger"><b>{{ object.get_status_display }}</b></td>
+                    {% else %}
+                        <td><b>{{ object.get_status_display }}</b></td>
+                    {% endif %}
+                    <td>{{ object.get_type_feedback_display }}</td>
+                    <td><a href="update-like-dislike-feedback/{{ object.id }}/0">{{ object.like }}</a></td>
+                    <td><a href="update-like-dislike-feedback/{{ object.id }}/1">{{ object.dislike }}</a></td>
+                    <td>{{ object.feedback }}</td>
+                    <td>{{ object.comment }}</td>
+                    <td>
+                        {% if object.status > 1 %}
+                        <!-- То ни чего не делаем, просто круглые скобки нельзя, так что вот такое решение -->
+                        {% else %}
+                            {% if  not user == object.author %}
+                            <!-- То ни чего не делаем, просто круглые скобки нельзя, так что вот такое решение -->
+                            {% else %}
+                            <form method="post" action="/crm/feedback-delete/{{object.id}}">
+                            {% csrf_token %}
+                                <input type="submit" value="Удалить" class="btn btn-danger">
+                            </form>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+    <p>Нет данных.</p>
+{% endif %}
+
+{% endblock %}

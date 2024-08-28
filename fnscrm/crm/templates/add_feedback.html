@@ -1,0 +1,39 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Оставить обратную связь</h1>
+{% load widget_tweaks %}
+
+<div class="container-fluid">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-6" style="padding-left: 25px;">
+                <div class="form-group">
+                    <label for="type_feedback" class="control-label">Тип сообщения: </label>
+                    <div name="type_feedback">
+                        {% render_field form.type_feedback class="form-control" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6" style="padding-left: 25px;">
+                <div class="form-group">
+                    <label for="feedback" class="control-label">Текст сообщения: </label>
+                    <div name="feedback">
+                        {% render_field form.feedback class="form-control" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="padding-bottom: 50px;">
+            <div class="col-lg-2">
+                <input type="submit" value="Оставить обратную связь" class="btn btn-primary">
+            </div>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}

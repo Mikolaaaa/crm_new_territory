@@ -1,0 +1,59 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Добавление нового модератора</h1>
+{% load widget_tweaks %}
+
+<div class="container-fluid">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-6" style="padding-left: 25px;">
+                <div class="form-group">
+                    <label for="name" class="control-label">Фамилия и инициалы: </label>
+                    <div name="name">
+                        {% render_field form.name class="form-control" %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="login_tg" class="control-label">Логин в ТГ: </label>
+                    <div name="login_tg">
+                        {% render_field form.login_tg class="form-control" %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="department" class="control-label">Подразделение: </label>
+                    <div name="department">
+                        {% render_field form.department class="form-control" %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="categories" class="control-label">Категории: </label>
+                    <div name="categories">
+                        {% render_field form.categories class="form-control" %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="comment" class="control-label">Комментарий: </label>
+                    <div name="comment">
+                        {% render_field form.comment class="form-control" %}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="it_rejection" class="col-lg-1 col-form-label">Отказ:</label>
+                    <div name="it_rejection" class="col-lg-2">
+                        {% render_field form.it_rejection class="form-check-input" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="padding-bottom: 50px;">
+            <div class="col-lg-2">
+                <input type="submit" value="Выполнить" class="btn btn-primary">
+            </div>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}

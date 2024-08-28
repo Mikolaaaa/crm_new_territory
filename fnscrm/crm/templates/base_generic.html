@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+  {% block title %}<title>CRM-система Новые территории</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <!-- Добавление дополнительного статического CSS файла -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <style>
+    details > summary {
+      cursor: pointer;
+    }
+  </style>
+{% load webpush_notifications %}
+{% webpush_header %}
+
+</head>
+
+<body>
+  
+  <div class="container-fluid">
+    
+      <img src="{% static 'logo_merge.png' %}"   style="width: 300px;" />
+      <!-- <img src="{% static 'logo.svg' %}"/> -->
+    
+    <div class="row">
+      <div class="col-lg-10">
+      {% block sidebar %}
+      
+      <ul class="nav nav-pills">
+          <!-- <li><a href="{% url 'index' %}" role="presentation"><img src="{% static 'logo.jpg' %}" style="max-width: 20%;"/></a></li> -->
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'index' %}"  role="presentation">Рабочий стол</a></li>
+            <li><a href="{% url 'log_messages' %}" role="presentation">База данных</a></li>
+            <li><a href="{% url 'statistic_base' %}" role="presentation">Статистика</a></li>
+            <li><a href="{% url 'moders' %}" role="presentation">Добавление модераторов</a></li>
+            <li><a href="{% url 'feedback' %}" role="presentation">Обратная связь</a></li>
+          {% endif %}
+          {% if user.is_staff %}
+            <li><a href="{% url 'admin:index' %}" role="presentation">Админ-панель</a></li>
+          {% endif %}
+          {% if user.is_authenticated %}
+            <!-- <li><a href="edit-user/{{user.id}}" role="presentation">Профиль</a></li> -->
+            <li><a href="{% url 'logout'%}?next={{request.path}}" role="presentation">Выйти из системы: {{ user.get_username }}</a></li>
+          {% endif %} 
+      </ul>
+     {% endblock %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-10">
+      {% block content %}{% endblock %}
+      </div>
+    </div>
+    {% load spurl %}
+    <div class="row">
+      <div class="col-lg-10">
+      {% block pagination %}
+        {% if is_paginated %}
+            <div class="pagination">
+                <span class="page-links">
+                    {% if page_obj.has_previous %}
+                        <a href="{% spurl query=request.GET set_query='page={{ page_obj.previous_page_number }}'%}">Назад</a>
+                    {% endif %}
+                    <span class="page-current">
+                        Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a href="{% spurl query=request.GET set_query='page={{ page_obj.next_page_number }}'%}">Вперед</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+      {% endblock %}
+      </div>
+    </div>
+    <div class="row" style="padding-left:20px;">
+      <div class="col-lg-9">
+    {% webpush_button with_class="btn btn-outline-info" %}
+  </div>
+  <div class="col-lg-1">
+  Версия: 1.1.0 
+  </div>
+  </div>
+  </div>
+</body>
+</html>

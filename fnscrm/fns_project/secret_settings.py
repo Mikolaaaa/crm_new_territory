@@ -1,0 +1,11 @@
+SECRET_KEY = 'django-insecure-4l_h2+ftch%2cjhxpr!d)1s#@%55z)vboz)1fn9xfkd2%^jwbu'
+DEBUG = False
+ALLOWED_HOSTS = ['*']
+
+WEBPUSH_SETTINGS = {
+"VAPID_PUBLIC_KEY": "BL4SWnNDSBQiGT6BroY8NEorKKCtsg_m7MsIg2oLOlY_OT3Gz9iWH0tEDJxLvwVYweq0pD1j8pGhpD-x66PfjoQ",
+"VAPID_PRIVATE_KEY": "s0D1yXpnb1g-sI2NWZdvFOviDQuVQlIMwSIA5n_oBg4",
+"VAPID_ADMIN_EMAIL": "andrey.medvedev.25.11@gmail.com"
+}
+
+BASE_NAME_FILE = 'db_prod.sqlite3'
